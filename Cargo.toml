@@ -14,7 +14,7 @@ unstable = []
 default = []
 
 [dependencies]
-bitcoin = "0.24"
+bitcoin = { git = "https://github.com/LNP-BP/rust-bitcoin", tag = "lnpbp-v0.1.0-rc1" }
 
 [dependencies.serde]
 version = "1.0"

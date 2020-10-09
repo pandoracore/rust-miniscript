@@ -324,7 +324,7 @@ pub fn finalize(psbt: &mut Psbt) -> Result<(), super::Error> {
         input.partial_sigs.clear();
         input.sighash_type = None;
         input.redeem_script = None;
-        input.hd_keypaths.clear();
+        input.bip32_derivation.clear();
         input.witness_script = None;
     }
     // Double check everything with the interpretor
