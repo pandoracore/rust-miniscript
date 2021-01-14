@@ -47,25 +47,32 @@ pub enum DescriptorSecretKey {
     XPrv(DescriptorXKey<bip32::ExtendedPrivKey>),
 }
 
+impl fmt::Display for DescriptorSinglePriv {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        maybe_fmt_master_id(f, &self.origin)?;
+        fmt::Display::fmt(&self.key, f)
+    }
+}
+
+impl<K: InnerXKey> fmt::Display for DescriptorXKey<K> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        maybe_fmt_master_id(f, &self.origin)?;
+        fmt::Display::fmt(&self.xkey, f)?;
+        fmt_derivation_path(f, &self.derivation_path)?;
+        match self.wildcard {
+            Wildcard::None => {}
+            Wildcard::Unhardened => write!(f, "/*")?,
+            Wildcard::Hardened => write!(f, "/*h")?,
+        }
+        Ok(())
+    }
+}
+
 impl fmt::Display for DescriptorSecretKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            &DescriptorSecretKey::SinglePriv(ref sk) => {
-                maybe_fmt_master_id(f, &sk.origin)?;
-                sk.key.fmt(f)?;
-                Ok(())
-            }
-            &DescriptorSecretKey::XPrv(ref xprv) => {
-                maybe_fmt_master_id(f, &xprv.origin)?;
-                xprv.xkey.fmt(f)?;
-                fmt_derivation_path(f, &xprv.derivation_path)?;
-                match xprv.wildcard {
-                    Wildcard::None => {}
-                    Wildcard::Unhardened => write!(f, "/*")?,
-                    Wildcard::Hardened => write!(f, "/*h")?,
-                }
-                Ok(())
-            }
+            &DescriptorSecretKey::SinglePriv(ref sk) => fmt::Display::fmt(sk, f),
+            &DescriptorSecretKey::XPrv(ref xprv) => fmt::Display::fmt(xprv, f),
         }
     }
 }
@@ -205,25 +212,18 @@ impl fmt::Display for DescriptorKeyParseError {
 
 impl error::Error for DescriptorKeyParseError {}
 
+impl fmt::Display for DescriptorSinglePub {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        maybe_fmt_master_id(f, &self.origin)?;
+        fmt::Display::fmt(&self.key, f)
+    }
+}
+
 impl fmt::Display for DescriptorPublicKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            DescriptorPublicKey::SinglePub(ref pk) => {
-                maybe_fmt_master_id(f, &pk.origin)?;
-                pk.key.fmt(f)?;
-                Ok(())
-            }
-            DescriptorPublicKey::XPub(ref xpub) => {
-                maybe_fmt_master_id(f, &xpub.origin)?;
-                xpub.xkey.fmt(f)?;
-                fmt_derivation_path(f, &xpub.derivation_path)?;
-                match xpub.wildcard {
-                    Wildcard::None => {}
-                    Wildcard::Unhardened => write!(f, "/*")?,
-                    Wildcard::Hardened => write!(f, "/*h")?,
-                }
-                Ok(())
-            }
+            DescriptorPublicKey::SinglePub(ref pk) => fmt::Display::fmt(pk, f),
+            DescriptorPublicKey::XPub(ref xpub) => fmt::Display::fmt(xpub, f),
         }
     }
 }
